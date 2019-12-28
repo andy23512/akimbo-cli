@@ -18,9 +18,9 @@ const path_1 = __importDefault(require("path"));
 (() => __awaiter(void 0, void 0, void 0, function* () {
     const projectName = getProjectName();
     makeAndChangeDirectory(projectName);
+    yield promiseSpawn('git', ['init']);
     yield promiseSpawn('ctore', ['frontend']);
     yield promiseSpawn(path_1.default.resolve(__dirname, '../setup-django.sh'), [projectName]);
-    yield promiseSpawn('git', ['init']);
 }))();
 function getProjectName() {
     const projectName = process.argv[2];

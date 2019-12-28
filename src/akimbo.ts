@@ -5,9 +5,9 @@ import path from 'path';
 (async () => {
   const projectName = getProjectName();
   makeAndChangeDirectory(projectName);
+  await promiseSpawn('git', ['init']);
   await promiseSpawn('ctore', ['frontend']);
   await promiseSpawn(path.resolve(__dirname, '../setup-django.sh'), [projectName]);
-  await promiseSpawn('git', ['init']);
 })();
 
 function getProjectName() {
