@@ -11,20 +11,26 @@
   "scripts": {
     "start": "ts-node src/akimbo.ts",
     "build": "tsc",
-    "precommit-build": "tsc && git add dist/"
+    "precommit-build": "tsc && git add dist/",
+    "lint": "jshint .",
+    "validate": "npm ls"
   },
   "files": [
     "main.js",
-    "dist/akimbo.js"
+    "dist/akimbo.js",
+    "setup-django.sh"
   ],
   "pre-commit": [
     "precommit-build"
   ],
   "devDependencies": {
     "@types/node": "^13.1.1",
+    "precommit-hook": "^3.0.0",
     "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
-    "typescript": "^3.7.4",
-    "precommit-hook": "^3.0.0"
+    "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "ctore-cli": "andy23512/ctore-cli"
   }
 }
