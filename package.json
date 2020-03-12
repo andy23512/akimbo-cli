@@ -29,8 +29,5 @@
     "ts-node": "^8.5.4",
     "tslint": "^5.20.1",
     "typescript": "^3.7.4"
-  },
-  "dependencies": {
-    "ctore-cli": "andy23512/ctore-cli"
   }
 }
