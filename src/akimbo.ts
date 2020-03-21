@@ -7,7 +7,11 @@ import path from 'path';
   makeAndChangeDirectory(projectName);
   await promiseSpawn('git', ['init']);
   await promiseSpawn('ctore', ['frontend']);
-  await promiseSpawn(path.resolve(__dirname, '../setup-django.sh'), [projectName]);
+  await promiseSpawn(path.resolve(__dirname, '../setup-django.sh'), [
+    projectName
+  ]);
+  setProxyConfig();
+  setCookieNames(projectName);
 })();
 
 function getProjectName() {
@@ -35,4 +39,33 @@ function promiseSpawn(command: string, args: string[]) {
       .spawn(command, args, { shell: true, stdio: 'inherit' })
       .on('close', code => (code === 0 ? resolve() : reject()));
   });
+}
+
+function setProxyConfig() {
+  const proxyConfigFile = path.resolve(
+    __dirname,
+    '../project/frontend/proxy.conf.json'
+  );
+  fs.copyFileSync(proxyConfigFile, './frontend/proxy.conf.json');
+  const angularJson = JSON.parse(
+    fs.readFileSync('./frontend/angular.json', { encoding: 'utf-8' })
+  );
+  angularJson.projects.app.architect.serve.options.proxyConfig =
+    'proxy.conf.json';
+  fs.writeFileSync(
+    './frontend/angular.json',
+    JSON.stringify(angularJson, null, 2)
+  );
+}
+
+function setCookieNames(projectName: string) {
+  fs.appendFileSync(
+    './backend/backend/settings.py',
+    `
+
+# Cookie Names
+SESSION_COOKIE_NAME = '${projectName}-sessionid'
+CSRF_COOKIE_NAME = '${projectName}-csrf'
+  `
+  );
 }

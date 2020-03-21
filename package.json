@@ -11,14 +11,13 @@
   "scripts": {
     "start": "ts-node src/akimbo.ts",
     "build": "tsc",
-    "precommit-build": "tsc && git add dist/",
-    "lint": "jshint .",
-    "validate": "npm ls"
+    "precommit-build": "tsc && git add dist/"
   },
   "files": [
     "main.js",
     "dist/akimbo.js",
-    "setup-django.sh"
+    "setup-django.sh",
+    "project/**/*"
   ],
   "pre-commit": [
     "precommit-build"
