@@ -11,8 +11,8 @@ import path from 'path';
     projectName
   ]);
   setProxyConfig();
-  setBackendCookieNames(projectName);
-  setBackendCsrf();
+  setBackendSettings(projectName);
+  setBackendFiles();
   await runSchematics(projectName);
   await initialCommit();
 })();
@@ -53,7 +53,7 @@ function setProxyConfig() {
   );
 }
 
-async function setBackendCookieNames(projectName: string) {
+async function setBackendSettings(projectName: string) {
   fs.appendFileSync(
     './backend/backend/settings.py',
     `
@@ -61,11 +61,16 @@ async function setBackendCookieNames(projectName: string) {
 # Cookie Names
 SESSION_COOKIE_NAME = '${projectName}-sessionid'
 CSRF_COOKIE_NAME = '${projectName}-csrf'
+
+# django-graphene
+GRAPHENE = {
+    'SCHEMA': 'backend.schema.schema'
+}
   `
   );
 }
 
-function setBackendCsrf() {
+function setBackendFiles() {
   const backendUrlsFile = path.resolve(
     __dirname,
     '../project/backend/backend/urls.py'
@@ -76,6 +81,11 @@ function setBackendCsrf() {
     '../project/backend/backend/views.py'
   );
   fs.copyFileSync(backendViewsFile, './backend/backend/views.py');
+  const backendSchemaFile = path.resolve(
+    __dirname,
+    '../project/backend/backend/schema.py'
+  );
+  fs.copyFileSync(backendViewsFile, './backend/backend/schema.py');
 }
 
 async function runSchematics(projectName: string) {
