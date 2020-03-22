@@ -1,4 +1,4 @@
-import child_process from 'child_process';
+import child_process, { ChildProcess } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
@@ -11,7 +11,10 @@ import path from 'path';
     projectName
   ]);
   setProxyConfig();
-  setCookieNames(projectName);
+  setBackendCookieNames(projectName);
+  setBackendCsrf();
+  await runSchematics(projectName);
+  await initialCommit();
 })();
 
 function getProjectName() {
@@ -33,14 +36,6 @@ function makeAndChangeDirectory(projectName: string) {
   process.chdir(projectName);
 }
 
-function promiseSpawn(command: string, args: string[]) {
-  return new Promise((resolve, reject) => {
-    child_process
-      .spawn(command, args, { shell: true, stdio: 'inherit' })
-      .on('close', code => (code === 0 ? resolve() : reject()));
-  });
-}
-
 function setProxyConfig() {
   const proxyConfigFile = path.resolve(
     __dirname,
@@ -58,7 +53,7 @@ function setProxyConfig() {
   );
 }
 
-function setCookieNames(projectName: string) {
+async function setBackendCookieNames(projectName: string) {
   fs.appendFileSync(
     './backend/backend/settings.py',
     `
@@ -68,4 +63,51 @@ SESSION_COOKIE_NAME = '${projectName}-sessionid'
 CSRF_COOKIE_NAME = '${projectName}-csrf'
   `
   );
+}
+
+function setBackendCsrf() {
+  const backendUrlsFile = path.resolve(
+    __dirname,
+    '../project/backend/backend/urls.py'
+  );
+  fs.copyFileSync(backendUrlsFile, './backend/backend/urls.py');
+  const backendViewsFile = path.resolve(
+    __dirname,
+    '../project/backend/backend/views.py'
+  );
+  fs.copyFileSync(backendViewsFile, './backend/backend/views.py');
+}
+
+async function runSchematics(projectName: string) {
+  await promiseSpawn(
+    'yarn',
+    ['add', 'andy23512/akimbo-schematics'],
+    './frontend'
+  );
+  await promiseSpawn(
+    'ng',
+    ['g', 'akimbo-schematics:ng-add', projectName],
+    './frontend'
+  );
+}
+
+async function initialCommit() {
+  await promiseSpawn('git', ['add', '.']);
+  await promiseSpawn('git', [
+    'commit',
+    '-m',
+    '"Initial commit from akimbo-cli"'
+  ]);
+}
+
+function promiseSpawn(command: string, args: string[], cwd?: string) {
+  const options: child_process.SpawnOptions = { shell: true, stdio: 'inherit' };
+  if (cwd) {
+    options.cwd = cwd;
+  }
+  return new Promise((resolve, reject) => {
+    child_process
+      .spawn(command, args, options)
+      .on('close', code => (code === 0 ? resolve() : reject()));
+  });
 }
