@@ -94,7 +94,7 @@ function setBackendFiles() {
   copyFileIntoProject('backend/backend/urls.py');
   copyFileIntoProject('backend/backend/views.py');
   copyFileIntoProject('backend/backend/schema.py');
-  copyFileIntoProject('backend/backend/Dockerfile');
+  copyFileIntoProject('backend/Dockerfile');
   return new Promise((resolve, reject) => {
     gitignore({ type: 'python', file: 'backend/.gitignore' }, (err: Error) => {
       err ? reject(err) : resolve();
