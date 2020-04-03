@@ -8,14 +8,10 @@ services:
     volumes:
       - $PWD/frontend:/frontend
       - /frontend/node_modules
+    command: yarn start
   backend:
     build: ./backend
-    command:
-      - /bin/sh
-      - -c
-      - |
-        ./setup.sh
-        ./manage.py runserver 0.0.0.0:8000
+    command: ./manage.py runserver 0.0.0.0:8000
     volumes:
       - $PWD/backend:/backend
     ports:
