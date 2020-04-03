@@ -63,6 +63,7 @@ function setFrontendSettings() {
     fs.readFileSync('./frontend/package.json', { encoding: 'utf-8' })
   );
   packageJSON.scripts.codegen = 'gql-gen --config codegen.yml';
+  packageJSON.scripts.start = 'ng serve --host 0.0.0.0 --poll=2000';
   fs.writeFileSync(
     './frontend/package.json',
     JSON.stringify(packageJSON, null, 2)

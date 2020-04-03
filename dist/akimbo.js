@@ -59,6 +59,7 @@ function setFrontendSettings() {
     fs_1.default.writeFileSync('./frontend/angular.json', JSON.stringify(angularJson, null, 2));
     const packageJSON = JSON.parse(fs_1.default.readFileSync('./frontend/package.json', { encoding: 'utf-8' }));
     packageJSON.scripts.codegen = 'gql-gen --config codegen.yml';
+    packageJSON.scripts.start = 'ng serve --host 0.0.0.0 --poll=2000';
     fs_1.default.writeFileSync('./frontend/package.json', JSON.stringify(packageJSON, null, 2));
     copyFileIntoProject('frontend/proxy.conf.json');
     copyFileIntoProject('frontend/apollo.config.js');
