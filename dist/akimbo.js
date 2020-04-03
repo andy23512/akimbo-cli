@@ -14,13 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = __importDefault(require("child_process"));
 const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
+const path_1 = require("path");
+const gitignore_1 = require("gitignore");
 (() => __awaiter(void 0, void 0, void 0, function* () {
     const projectName = getProjectName();
     makeAndChangeDirectory(projectName);
     yield promiseSpawn('git', ['init']);
     yield promiseSpawn('ctore', ['frontend']);
-    yield promiseSpawn(path_1.default.resolve(__dirname, '../setup-django.sh'), [
+    yield promiseSpawn(path_1.resolve(__dirname, '../setup-django.sh'), [
         projectName
     ]);
     yield promiseSpawn('yarn', [
@@ -32,7 +33,8 @@ const path_1 = __importDefault(require("path"));
     yield promiseSpawn('ng', ['add', 'apollo-angular']);
     setFrontendSettings();
     setBackendSettings(projectName);
-    setBackendFiles();
+    yield setBackendFiles();
+    setDockerFiles();
     yield runSchematics(projectName);
     yield initialCommit();
 }))();
@@ -51,8 +53,6 @@ function makeAndChangeDirectory(projectName) {
     process.chdir(projectName);
 }
 function setFrontendSettings() {
-    const proxyConfigFile = path_1.default.resolve(__dirname, '../project/frontend/proxy.conf.json');
-    fs_1.default.copyFileSync(proxyConfigFile, './frontend/proxy.conf.json');
     const angularJson = JSON.parse(fs_1.default.readFileSync('./frontend/angular.json', { encoding: 'utf-8' }));
     angularJson.projects.app.architect.serve.options.proxyConfig =
         'proxy.conf.json';
@@ -60,10 +60,10 @@ function setFrontendSettings() {
     const packageJSON = JSON.parse(fs_1.default.readFileSync('./frontend/package.json', { encoding: 'utf-8' }));
     packageJSON.scripts.codegen = 'gql-gen --config codegen.yml';
     fs_1.default.writeFileSync('./frontend/package.json', JSON.stringify(packageJSON, null, 2));
-    const apolloConfigFile = path_1.default.resolve(__dirname, '../project/frontend/apollo.config.js');
-    fs_1.default.copyFileSync(apolloConfigFile, './frontend/apollo.config.js');
-    const codeGenConfigFile = path_1.default.resolve(__dirname, '../project/frontend/codegen.yml');
-    fs_1.default.copyFileSync(codeGenConfigFile, './frontend/codegen.yml');
+    copyFileIntoProject('frontend/proxy.conf.json');
+    copyFileIntoProject('frontend/apollo.config.js');
+    copyFileIntoProject('frontend/codegen.yml');
+    copyFileIntoProject('frontend/Dockerfile');
 }
 function setBackendSettings(projectName) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -81,12 +81,18 @@ GRAPHENE = {
     });
 }
 function setBackendFiles() {
-    const backendUrlsFile = path_1.default.resolve(__dirname, '../project/backend/backend/urls.py');
-    fs_1.default.copyFileSync(backendUrlsFile, './backend/backend/urls.py');
-    const backendViewsFile = path_1.default.resolve(__dirname, '../project/backend/backend/views.py');
-    fs_1.default.copyFileSync(backendViewsFile, './backend/backend/views.py');
-    const backendSchemaFile = path_1.default.resolve(__dirname, '../project/backend/backend/schema.py');
-    fs_1.default.copyFileSync(backendViewsFile, './backend/backend/schema.py');
+    copyFileIntoProject('backend/backend/urls.py');
+    copyFileIntoProject('backend/backend/views.py');
+    copyFileIntoProject('backend/backend/schema.py');
+    copyFileIntoProject('backend/backend/Dockerfile');
+    return new Promise((resolve, reject) => {
+        gitignore_1.writeFile({ type: 'python', file: 'backend/.gitignore' }, err => {
+            err ? reject(err) : resolve();
+        });
+    });
+}
+function setDockerFiles() {
+    copyFileIntoProject('docker-compose.dev.yml');
 }
 function runSchematics(projectName) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -114,4 +120,9 @@ function promiseSpawn(command, args, cwd) {
             .spawn(command, args, options)
             .on('close', code => (code === 0 ? resolve() : reject()));
     });
+}
+function copyFileIntoProject(path) {
+    const file = path_1.resolve(__dirname, `../project/`, path);
+    const dest = path_1.resolve(path);
+    fs_1.default.copyFileSync(file, dest);
 }

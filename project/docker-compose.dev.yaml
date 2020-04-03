@@ -20,8 +20,3 @@ services:
       - $PWD/backend:/backend
     ports:
       - "8000:8000"
-  database:
-    image: "postgres:12"
-    volumes:
-      - $PWD/database:/var/lib/postgresql/data
-      - $PWD/log/db:/var/log/postgresql

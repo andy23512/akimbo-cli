@@ -1,13 +1,14 @@
 import child_process from 'child_process';
 import fs from 'fs';
-import path from 'path';
+import { resolve as pathResolve } from 'path';
+import { writeFile as gitignoreWriteFile } from 'gitignore';
 
 (async () => {
   const projectName = getProjectName();
   makeAndChangeDirectory(projectName);
   await promiseSpawn('git', ['init']);
   await promiseSpawn('ctore', ['frontend']);
-  await promiseSpawn(path.resolve(__dirname, '../setup-django.sh'), [
+  await promiseSpawn(pathResolve(__dirname, '../setup-django.sh'), [
     projectName
   ]);
   await promiseSpawn(
@@ -23,7 +24,8 @@ import path from 'path';
   await promiseSpawn('ng', ['add', 'apollo-angular']);
   setFrontendSettings();
   setBackendSettings(projectName);
-  setBackendFiles();
+  await setBackendFiles();
+  setDockerFiles();
   await runSchematics(projectName);
   await initialCommit();
 })();
@@ -48,11 +50,6 @@ function makeAndChangeDirectory(projectName: string) {
 }
 
 function setFrontendSettings() {
-  const proxyConfigFile = path.resolve(
-    __dirname,
-    '../project/frontend/proxy.conf.json'
-  );
-  fs.copyFileSync(proxyConfigFile, './frontend/proxy.conf.json');
   const angularJson = JSON.parse(
     fs.readFileSync('./frontend/angular.json', { encoding: 'utf-8' })
   );
@@ -70,16 +67,10 @@ function setFrontendSettings() {
     './frontend/package.json',
     JSON.stringify(packageJSON, null, 2)
   );
-  const apolloConfigFile = path.resolve(
-    __dirname,
-    '../project/frontend/apollo.config.js'
-  );
-  fs.copyFileSync(apolloConfigFile, './frontend/apollo.config.js');
-  const codeGenConfigFile = path.resolve(
-    __dirname,
-    '../project/frontend/codegen.yml'
-  );
-  fs.copyFileSync(codeGenConfigFile, './frontend/codegen.yml');
+  copyFileIntoProject('frontend/proxy.conf.json');
+  copyFileIntoProject('frontend/apollo.config.js');
+  copyFileIntoProject('frontend/codegen.yml');
+  copyFileIntoProject('frontend/Dockerfile');
 }
 
 async function setBackendSettings(projectName: string) {
@@ -100,21 +91,19 @@ GRAPHENE = {
 }
 
 function setBackendFiles() {
-  const backendUrlsFile = path.resolve(
-    __dirname,
-    '../project/backend/backend/urls.py'
-  );
-  fs.copyFileSync(backendUrlsFile, './backend/backend/urls.py');
-  const backendViewsFile = path.resolve(
-    __dirname,
-    '../project/backend/backend/views.py'
-  );
-  fs.copyFileSync(backendViewsFile, './backend/backend/views.py');
-  const backendSchemaFile = path.resolve(
-    __dirname,
-    '../project/backend/backend/schema.py'
-  );
-  fs.copyFileSync(backendViewsFile, './backend/backend/schema.py');
+  copyFileIntoProject('backend/backend/urls.py');
+  copyFileIntoProject('backend/backend/views.py');
+  copyFileIntoProject('backend/backend/schema.py');
+  copyFileIntoProject('backend/backend/Dockerfile');
+  return new Promise((resolve, reject) => {
+    gitignoreWriteFile({ type: 'python', file: 'backend/.gitignore' }, err => {
+      err ? reject(err) : resolve();
+    });
+  });
+}
+
+function setDockerFiles() {
+  copyFileIntoProject('docker-compose.dev.yml');
 }
 
 async function runSchematics(projectName: string) {
@@ -149,4 +138,10 @@ function promiseSpawn(command: string, args: string[], cwd?: string) {
       .spawn(command, args, options)
       .on('close', code => (code === 0 ? resolve() : reject()));
   });
+}
+
+function copyFileIntoProject(path: string) {
+  const file = pathResolve(__dirname, `../project/`, path);
+  const dest = pathResolve(path);
+  fs.copyFileSync(file, dest);
 }
