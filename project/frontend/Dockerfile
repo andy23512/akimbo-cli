@@ -8,5 +8,4 @@ EXPOSE 4200
 
 RUN npm i yarn \
     && rm package-lock.json \
-    && yarn \
-    && yarn prod
+    && yarn
