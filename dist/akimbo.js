@@ -30,7 +30,7 @@ const gitignore = require('gitignore');
         '@graphql-codegen/typescript-apollo-angular',
         '@graphql-codegen/typescript-operations'
     ], './frontend');
-    yield promiseSpawn('ng', ['add', 'apollo-angular']);
+    yield promiseSpawn('ng', ['add', 'apollo-angular'], './frontend');
     setFrontendSettings();
     setBackendSettings(projectName);
     yield setBackendFiles();

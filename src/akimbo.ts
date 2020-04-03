@@ -21,7 +21,7 @@ const gitignore = require('gitignore');
     ],
     './frontend'
   );
-  await promiseSpawn('ng', ['add', 'apollo-angular']);
+  await promiseSpawn('ng', ['add', 'apollo-angular'], './frontend');
   setFrontendSettings();
   setBackendSettings(projectName);
   await setBackendFiles();
