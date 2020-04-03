@@ -93,6 +93,7 @@ function setBackendFiles() {
 }
 function setDockerFiles() {
     copyFileIntoProject('docker-compose.dev.yml');
+    copyFileIntoProject('Makefile');
 }
 function runSchematics(projectName) {
     return __awaiter(this, void 0, void 0, function* () {
