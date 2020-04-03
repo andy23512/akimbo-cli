@@ -23,7 +23,14 @@ const path_1 = __importDefault(require("path"));
     yield promiseSpawn(path_1.default.resolve(__dirname, '../setup-django.sh'), [
         projectName
     ]);
-    setProxyConfig();
+    yield promiseSpawn('yarn', [
+        'add',
+        '@graphql-codegen/cli',
+        '@graphql-codegen/typescript-apollo-angular',
+        '@graphql-codegen/typescript-operations'
+    ], './frontend');
+    yield promiseSpawn('ng', ['add', 'apollo-angular']);
+    setFrontendSettings();
     setBackendSettings(projectName);
     setBackendFiles();
     yield runSchematics(projectName);
@@ -43,13 +50,20 @@ function makeAndChangeDirectory(projectName) {
     fs_1.default.mkdirSync(projectName);
     process.chdir(projectName);
 }
-function setProxyConfig() {
+function setFrontendSettings() {
     const proxyConfigFile = path_1.default.resolve(__dirname, '../project/frontend/proxy.conf.json');
     fs_1.default.copyFileSync(proxyConfigFile, './frontend/proxy.conf.json');
     const angularJson = JSON.parse(fs_1.default.readFileSync('./frontend/angular.json', { encoding: 'utf-8' }));
     angularJson.projects.app.architect.serve.options.proxyConfig =
         'proxy.conf.json';
     fs_1.default.writeFileSync('./frontend/angular.json', JSON.stringify(angularJson, null, 2));
+    const packageJSON = JSON.parse(fs_1.default.readFileSync('./frontend/package.json', { encoding: 'utf-8' }));
+    packageJSON.scripts.codegen = 'gql-gen --config codegen.yml';
+    fs_1.default.writeFileSync('./frontend/package.json', JSON.stringify(packageJSON, null, 2));
+    const apolloConfigFile = path_1.default.resolve(__dirname, '../project/frontend/apollo.config.js');
+    fs_1.default.copyFileSync(apolloConfigFile, './frontend/apollo.config.js');
+    const codeGenConfigFile = path_1.default.resolve(__dirname, '../project/frontend/codegen.yml');
+    fs_1.default.copyFileSync(codeGenConfigFile, './frontend/codegen.yml');
 }
 function setBackendSettings(projectName) {
     return __awaiter(this, void 0, void 0, function* () {

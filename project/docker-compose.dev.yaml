@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  frontend:
+    ports:
+      - '35729:35729'
+      - '4200:4200'
+    volumes:
+      - $PWD/frontend:/frontend
+      - /frontend/node_modules
+  backend:
+    build:
+      context: ./backend
+    command:
+      - /bin/sh
+      - -c
+      - |
+        ./setup.sh
+        ./manage.py runserver 0.0.0.0:8000
+    volumes:
+      - $PWD/backend:/backend
+    ports:
+      - "8000:8000"
+  database:
+    image: "postgres:12"
+    volumes:
+      - $PWD/database:/var/lib/postgresql/data
+      - $PWD/log/db:/var/log/postgresql

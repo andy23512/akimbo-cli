@@ -1,4 +1,4 @@
-import child_process, { ChildProcess } from 'child_process';
+import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
@@ -10,7 +10,18 @@ import path from 'path';
   await promiseSpawn(path.resolve(__dirname, '../setup-django.sh'), [
     projectName
   ]);
-  setProxyConfig();
+  await promiseSpawn(
+    'yarn',
+    [
+      'add',
+      '@graphql-codegen/cli',
+      '@graphql-codegen/typescript-apollo-angular',
+      '@graphql-codegen/typescript-operations'
+    ],
+    './frontend'
+  );
+  await promiseSpawn('ng', ['add', 'apollo-angular']);
+  setFrontendSettings();
   setBackendSettings(projectName);
   setBackendFiles();
   await runSchematics(projectName);
@@ -36,7 +47,7 @@ function makeAndChangeDirectory(projectName: string) {
   process.chdir(projectName);
 }
 
-function setProxyConfig() {
+function setFrontendSettings() {
   const proxyConfigFile = path.resolve(
     __dirname,
     '../project/frontend/proxy.conf.json'
@@ -51,6 +62,24 @@ function setProxyConfig() {
     './frontend/angular.json',
     JSON.stringify(angularJson, null, 2)
   );
+  const packageJSON = JSON.parse(
+    fs.readFileSync('./frontend/package.json', { encoding: 'utf-8' })
+  );
+  packageJSON.scripts.codegen = 'gql-gen --config codegen.yml';
+  fs.writeFileSync(
+    './frontend/package.json',
+    JSON.stringify(packageJSON, null, 2)
+  );
+  const apolloConfigFile = path.resolve(
+    __dirname,
+    '../project/frontend/apollo.config.js'
+  );
+  fs.copyFileSync(apolloConfigFile, './frontend/apollo.config.js');
+  const codeGenConfigFile = path.resolve(
+    __dirname,
+    '../project/frontend/codegen.yml'
+  );
+  fs.copyFileSync(codeGenConfigFile, './frontend/codegen.yml');
 }
 
 async function setBackendSettings(projectName: string) {

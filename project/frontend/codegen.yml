@@ -1,0 +1,10 @@
+overwrite: true
+schema: 'http://localhost:8000/graphql-dev'
+generates:
+  ./interface/graphql-types.ts:
+    config: {}
+    plugins:
+      - add: '// @ts-ignore: Unused variable'
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-apollo-angular'
