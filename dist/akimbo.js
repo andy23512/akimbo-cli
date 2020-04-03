@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const child_process_1 = __importDefault(require("child_process"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = require("path");
-const gitignore_1 = require("gitignore");
+const gitignore = require('gitignore');
 (() => __awaiter(void 0, void 0, void 0, function* () {
     const projectName = getProjectName();
     makeAndChangeDirectory(projectName);
@@ -86,7 +86,7 @@ function setBackendFiles() {
     copyFileIntoProject('backend/backend/schema.py');
     copyFileIntoProject('backend/backend/Dockerfile');
     return new Promise((resolve, reject) => {
-        gitignore_1.writeFile({ type: 'python', file: 'backend/.gitignore' }, err => {
+        gitignore({ type: 'python', file: 'backend/.gitignore' }, (err) => {
             err ? reject(err) : resolve();
         });
     });

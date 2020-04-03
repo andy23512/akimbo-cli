@@ -1,7 +1,7 @@
 import child_process from 'child_process';
 import fs from 'fs';
 import { resolve as pathResolve } from 'path';
-import { writeFile as gitignoreWriteFile } from 'gitignore';
+const gitignore = require('gitignore');
 
 (async () => {
   const projectName = getProjectName();
@@ -96,7 +96,7 @@ function setBackendFiles() {
   copyFileIntoProject('backend/backend/schema.py');
   copyFileIntoProject('backend/backend/Dockerfile');
   return new Promise((resolve, reject) => {
-    gitignoreWriteFile({ type: 'python', file: 'backend/.gitignore' }, err => {
+    gitignore({ type: 'python', file: 'backend/.gitignore' }, (err: Error) => {
       err ? reject(err) : resolve();
     });
   });
