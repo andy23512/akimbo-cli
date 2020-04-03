@@ -92,7 +92,7 @@ function setBackendFiles() {
     });
 }
 function setDockerFiles() {
-    copyFileIntoProject('docker-compose.dev.yml');
+    copyFileIntoProject('docker-compose.yml');
     copyFileIntoProject('Makefile');
 }
 function runSchematics(projectName) {
