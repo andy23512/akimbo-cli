@@ -9,7 +9,7 @@ const gitignore = require('gitignore');
   await promiseSpawn('git', ['init']);
   await promiseSpawn('ctore', ['frontend']);
   await promiseSpawn(pathResolve(__dirname, '../setup-django.sh'), [
-    projectName
+    projectName,
   ]);
   await promiseSpawn(
     'yarn',
@@ -17,7 +17,7 @@ const gitignore = require('gitignore');
       'add',
       '@graphql-codegen/cli',
       '@graphql-codegen/typescript-apollo-angular',
-      '@graphql-codegen/typescript-operations'
+      '@graphql-codegen/typescript-operations',
     ],
     './frontend'
   );
@@ -114,12 +114,12 @@ function setDockerFiles() {
 async function runSchematics(projectName: string) {
   await promiseSpawn(
     'yarn',
-    ['add', 'andy23512/akimbo-schematics'],
+    ['add', 'andy23512/blast-calamity-schematics'],
     './frontend'
   );
   await promiseSpawn(
     'ng',
-    ['g', 'akimbo-schematics:ng-add', projectName],
+    ['g', 'blast-calamity-schematics:ng-add', projectName],
     './frontend'
   );
 }
@@ -129,7 +129,7 @@ async function initialCommit() {
   await promiseSpawn('git', [
     'commit',
     '-m',
-    '"Initial commit from akimbo-cli"'
+    '"Initial commit from akimbo-cli"',
   ]);
 }
 
@@ -141,7 +141,7 @@ function promiseSpawn(command: string, args: string[], cwd?: string) {
   return new Promise((resolve, reject) => {
     child_process
       .spawn(command, args, options)
-      .on('close', code => (code === 0 ? resolve() : reject()));
+      .on('close', (code) => (code === 0 ? resolve() : reject()));
   });
 }
 

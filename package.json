@@ -1,21 +1,21 @@
 {
-  "name": "akimbo-cli",
+  "name": "blast-calamity",
   "version": "1.0.0",
   "main": "main.js",
-  "repository": "git@github.com:andy23512/gsmre-cli.git",
+  "repository": "git@github.com:andy23512/blast-calamity.git",
   "author": "Tangent Chang <andy23512@gmail.com>",
   "license": "MIT",
   "bin": {
-    "akimbo": "./main.js"
+    "blast-calamity": "./main.js"
   },
   "scripts": {
-    "start": "ts-node src/akimbo.ts",
+    "start": "ts-node src/blast-calamity.ts",
     "build": "tsc",
     "precommit-build": "tsc && git add dist/"
   },
   "files": [
     "main.js",
-    "dist/akimbo.js",
+    "dist/blast-calamity.js",
     "setup-django.sh",
     "project/**/*"
   ],

@@ -22,13 +22,13 @@ const gitignore = require('gitignore');
     yield promiseSpawn('git', ['init']);
     yield promiseSpawn('ctore', ['frontend']);
     yield promiseSpawn(path_1.resolve(__dirname, '../setup-django.sh'), [
-        projectName
+        projectName,
     ]);
     yield promiseSpawn('yarn', [
         'add',
         '@graphql-codegen/cli',
         '@graphql-codegen/typescript-apollo-angular',
-        '@graphql-codegen/typescript-operations'
+        '@graphql-codegen/typescript-operations',
     ], './frontend');
     yield promiseSpawn('ng', ['add', 'apollo-angular'], './frontend');
     setFrontendSettings();
@@ -98,8 +98,8 @@ function setDockerFiles() {
 }
 function runSchematics(projectName) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield promiseSpawn('yarn', ['add', 'andy23512/akimbo-schematics'], './frontend');
-        yield promiseSpawn('ng', ['g', 'akimbo-schematics:ng-add', projectName], './frontend');
+        yield promiseSpawn('yarn', ['add', 'andy23512/blast-calamity-schematics'], './frontend');
+        yield promiseSpawn('ng', ['g', 'blast-calamity-schematics:ng-add', projectName], './frontend');
     });
 }
 function initialCommit() {
@@ -108,7 +108,7 @@ function initialCommit() {
         yield promiseSpawn('git', [
             'commit',
             '-m',
-            '"Initial commit from akimbo-cli"'
+            '"Initial commit from akimbo-cli"',
         ]);
     });
 }
@@ -120,7 +120,7 @@ function promiseSpawn(command, args, cwd) {
     return new Promise((resolve, reject) => {
         child_process_1.default
             .spawn(command, args, options)
-            .on('close', code => (code === 0 ? resolve() : reject()));
+            .on('close', (code) => (code === 0 ? resolve() : reject()));
     });
 }
 function copyFileIntoProject(path) {
