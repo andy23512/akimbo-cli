@@ -18,6 +18,7 @@ const gitignore = require('gitignore');
       '@graphql-codegen/cli',
       '@graphql-codegen/typescript-apollo-angular',
       '@graphql-codegen/typescript-operations',
+      '@graphql-codegen/add',
     ],
     './frontend'
   );
