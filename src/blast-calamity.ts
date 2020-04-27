@@ -129,7 +129,7 @@ async function initialCommit() {
   await promiseSpawn('git', [
     'commit',
     '-m',
-    '"Initial commit from akimbo-cli"',
+    '"Initial commit from blast-calamity"',
   ]);
 }
 

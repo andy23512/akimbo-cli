@@ -108,7 +108,7 @@ function initialCommit() {
         yield promiseSpawn('git', [
             'commit',
             '-m',
-            '"Initial commit from akimbo-cli"',
+            '"Initial commit from blast-calamity"',
         ]);
     });
 }
