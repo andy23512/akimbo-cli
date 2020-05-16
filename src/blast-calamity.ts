@@ -76,9 +76,34 @@ function setFrontendSettings() {
 }
 
 async function setBackendSettings(projectName: string) {
-  fs.appendFileSync(
-    './backend/backend/settings.py',
+  let settingsPy = fs.readFileSync('./backend/backend/settings.py', {
+    encoding: 'utf-8',
+  });
+  settingsPy =
+    settingsPy
+      .replace(
+        '# SECURITY WARNING: keep the secret key used in production secret!\n',
+        ''
+      )
+      .replace(/SECRET_KEY = '.*?'\n/, '') +
     `
+# generate secret key if not exist. Ref: https://gist.github.com/ndarville/3452907
+try:
+    SECRET_KEY
+except NameError:
+    SECRET_FILE = os.path.join(BASE_DIR, 'secret.txt')
+    try:
+        SECRET_KEY = open(SECRET_FILE).read().strip()
+    except IOError:
+        try:
+            import random
+            SECRET_KEY = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)])
+            secret = open(SECRET_FILE, 'w')
+            secret.write(SECRET_KEY)
+            secret.close()
+        except IOError:
+            Exception('Please create a %s file with random characters \
+            to generate your secret key!' % SECRET_FILE)
 
 # Cookie Names
 SESSION_COOKIE_NAME = '${projectName}-sessionid'
@@ -88,8 +113,8 @@ CSRF_COOKIE_NAME = '${projectName}-csrf'
 GRAPHENE = {
     'SCHEMA': 'backend.schema.schema'
 }
-  `
-  );
+    `;
+  fs.writeFileSync('./backend/backend/settings.py', settingsPy);
 }
 
 function setBackendFiles() {
@@ -101,6 +126,7 @@ function setBackendFiles() {
     gitignore.writeFile(
       { type: 'Python', file: fs.createWriteStream('backend/.gitignore') },
       (err: Error) => {
+        fs.appendFileSync('backend/.gitignore', '\nsecret.txt');
         err ? reject(err) : resolve();
       }
     );
