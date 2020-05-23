@@ -20,25 +20,34 @@ const gitignore = require('gitignore');
     const projectName = getProjectName();
     makeAndChangeDirectory(projectName);
     yield promiseSpawn('git', ['init']);
-    yield promiseSpawn('ctore', ['frontend']);
-    yield promiseSpawn(path_1.resolve(__dirname, '../setup-django.sh'), [
-        projectName,
-    ]);
-    yield promiseSpawn('yarn', [
-        'add',
-        '@graphql-codegen/cli',
-        '@graphql-codegen/typescript-apollo-angular',
-        '@graphql-codegen/typescript-operations',
-        '@graphql-codegen/add',
-    ], './frontend');
-    yield promiseSpawn('ng', ['add', 'apollo-angular'], './frontend');
-    setFrontendSettings();
-    setBackendSettings(projectName);
-    yield setBackendFiles();
+    yield Promise.all([frontendFlow(projectName), backendFlow(projectName)]);
     setDockerFiles();
-    yield runSchematics(projectName);
     yield initialCommit();
 }))();
+function frontendFlow(projectName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield promiseSpawn('ctore', ['frontend']);
+        yield promiseSpawn('yarn', [
+            'add',
+            '@graphql-codegen/cli',
+            '@graphql-codegen/typescript-apollo-angular',
+            '@graphql-codegen/typescript-operations',
+            '@graphql-codegen/add',
+        ], './frontend');
+        yield promiseSpawn('ng', ['add', 'apollo-angular'], './frontend');
+        setFrontendSettings();
+        yield runSchematics(projectName);
+    });
+}
+function backendFlow(projectName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield promiseSpawn(path_1.resolve(__dirname, '../setup-django.sh'), [
+            projectName,
+        ]);
+        setBackendSettings(projectName);
+        yield setBackendFiles();
+    });
+}
 function getProjectName() {
     const projectName = process.argv[2];
     if (!projectName) {

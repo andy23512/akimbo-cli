@@ -7,10 +7,13 @@ const gitignore = require('gitignore');
   const projectName = getProjectName();
   makeAndChangeDirectory(projectName);
   await promiseSpawn('git', ['init']);
+  await Promise.all([frontendFlow(projectName), backendFlow(projectName)]);
+  setDockerFiles();
+  await initialCommit();
+})();
+
+async function frontendFlow(projectName: string) {
   await promiseSpawn('ctore', ['frontend']);
-  await promiseSpawn(pathResolve(__dirname, '../setup-django.sh'), [
-    projectName,
-  ]);
   await promiseSpawn(
     'yarn',
     [
@@ -24,12 +27,16 @@ const gitignore = require('gitignore');
   );
   await promiseSpawn('ng', ['add', 'apollo-angular'], './frontend');
   setFrontendSettings();
+  await runSchematics(projectName);
+}
+
+async function backendFlow(projectName: string) {
+  await promiseSpawn(pathResolve(__dirname, '../setup-django.sh'), [
+    projectName,
+  ]);
   setBackendSettings(projectName);
   await setBackendFiles();
-  setDockerFiles();
-  await runSchematics(projectName);
-  await initialCommit();
-})();
+}
 
 function getProjectName() {
   const projectName = process.argv[2];
